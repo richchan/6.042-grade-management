@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>6.042 Staff Report</title>
+    <script type='text/javascript' src='http://www.google.com/jsapi'></script>
+    <script type='text/javascript'>
+      google.load('visualization', '1', {packages:['table', 'columnchart']});
+      google.setOnLoadCallback(callback);
+      
+      /** data goes here **/
+      var grades = {};var titles = {};
+      
+#CONTENT#
+
+      var total_column = students_grades['cols'].length-2;
+
+      function drawChart(key, div, w, h) {
+         var data = new google.visualization.DataTable(grades[key], 0.6)
+         var chart = new google.visualization.ColumnChart(div);
+         chart.draw(data, {width: w, height: h, is3D: false, title: titles[key], legend: 'none'})
+      }
+      
+      function drawTable(json, div, opt_options) {
+        if (json && json.rows && json.rows.length > 0) {
+          var data = new google.visualization.DataTable(json, 0.6);
+          var table = new google.visualization.Table(div);
+          table.draw(data, opt_options || {sortColumn: total_column, sortAscending: false, allowHtml: true, alternatingRowStyle: true});
+        } else {
+          div.innerHTML = "No grades available yet.";
+        }
+        return table;
+      }
+      
+      var table = null;
+      var chart = null;
+      var chart_data = {};
+      
+      function callback() {
+        chart_data = {};
+        
+        chart_data['cols'] = [students_grades['cols'][0], students_grades['cols'][total_column]];
+        chart_data['rows'] = [];
+        
+        for (var i = 0; i < students_grades['rows'].length; i++) {
+          var row = {c: [{v: students_grades['rows'][i]['c'][0]['v']}, students_grades['rows'][i]['c'][total_column]], index: i };
+          chart_data['rows'].push(row);
+        }
+        chart_data['rows'].sort(function(a, b) { return a['c'][1]['v'] - b['c'][1]['v'] });
+        
+        chart_data['rows_sorted_map'] = [];
+        for (var i = 0; i < students_grades['rows'].length; i++) {
+          chart_data['rows_sorted_map'][chart_data['rows'][i].index] = i;
+        }
+        
+        var div = document.createElement('div');
+          div.className = 'grade_table_container';
+          div.style.width = '1000px';
+          div.id = 'total_container';
+          var title = document.createElement('h2');
+          title.innerHTML = 'Student Grades';
+          div.appendChild(title);
+          var chartDiv = document.createElement('div');
+          div.appendChild(chartDiv);
+          document.getElementById('container').appendChild(div);
+          var data = new google.visualization.DataTable(chart_data, 0.6);
+         
+          title.style.cursor = 'pointer';
+          title.onclick = function(){ toggle(chartDiv) };
+          
+          var chartTitle = 'count = ' + students_grades['rows'].length + '; mean = ' + mean + '; median = ' + median + '; stddev = ' + stddev;
+          
+          chart = new google.visualization.ColumnChart(chartDiv);
+          chart.draw(data, {width: 1000, height: 300, is3D: false, title: chartTitle, legend: 'none', focusBorderColor: 'red', axisFontSize: '10px'})
+         
+        table = drawTable(students_grades, document.getElementById('grades_div'));
+        
+        google.visualization.events.addListener(chart, 'select', function() {
+          var row_index = chart_data['rows'][chart.getSelection()[0]['row']].index;
+          table.setSelection([{row: row_index}]);
+          
+          var id = chart_data['rows'][chart.getSelection()[0]['row']].c[0].v;
+          Effect.ScrollTo(id, { duration:'1.0', offset:-20 });
+        });
+        
+        google.visualization.events.addListener(table, 'select', function() {
+          var index = table.getSelection()[0]['row'];
+          var row = chart_data['rows_sorted_map'][index];
+          chart.setSelection([{row: row, column: 1}]);
+        });
+      }
+      
+      function toggle(div) {
+        if (div.style.display == 'none') {
+          div.style.display = 'block';
+        } else {
+          div.style.display = 'none';
+        }
+      }
+      
+      function addth(x) {
+        switch (x) {
+          case 1:
+            return x + 'st';
+          case 2:
+            return x + 'nd';
+          case 3:
+            return x + 'rd';
+          default:
+            return x + 'th';
+        }
+      }
+      
+    </script>
+    <script src="scripts/prototype.js" type="text/javascript"></script>
+    <script src="scripts/scriptaculous.js?load=effects" type="text/javascript"></script>
+    <style>
+      h1 {
+        font-size: 20px;
+/*        border-left: 6px #993333 solid;*/
+        background: #CCCCEE;
+        padding: 10px;
+        color: #333333;
+        padding-left: 16px;
+      }
+      h2 {
+        font-size: 16px;
+/*        border-left: 6px #AA6666 solid;*/
+        background: #DDDDFF;
+        padding: 4px;
+        margin: 0;
+        margin-bottom: 10px;
+        color: #333333;
+        padding-left: 16px;
+      }
+      .grade_table_container {
+        width: 400px;
+        border: 1px lightgrey solid;
+        padding: 10px;
+        margin: 10px;
+      }
+      .total_container {
+        width: 800px;
+      }
+      .total_container h2 {
+/*        border-left: 6px #5566FF solid;*/
+        background: #CCCCFF;
+      }
+      .grayed h2 {
+        background: #CCCCCC;
+      }
+      #timestamp {
+        color: gray;
+        font-style: italic;
+        text-align: right;
+      }
+      em {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1 id="title">6.042 Staff Report</h1>
+    
+    <div style="float: left" id="container"> 
+    </div> 
+    
+    <div style="clear:both"></div> 
+    
+    <div class="grade_table_container total_container" style="width: 90%">
+      <h2>Student Grades</h2>
+      <div id='grades_div'></div>
+    </div>
+        
+    <div style="clear:both"></div>
+    
+    <div id="timestamp"></div>
+        
+  </body>
+</html>

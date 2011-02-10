@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>6.042 Grade Report</title>
+    <script type='text/javascript' src='http://www.google.com/jsapi'></script>
+    <script type='text/javascript'>
+      google.load('visualization', '1', {packages:['table', 'columnchart']});
+      google.setOnLoadCallback(callback);
+      
+      /** data goes here **/
+      var grades = {};var titles = {};
+      
+#CONTENT#
+
+      function drawTable(json, div, opt_options) {
+        if (json && json.rows && json.rows.length > 0) {
+          var data = new google.visualization.DataTable(json, 0.6);
+          var table = new google.visualization.Table(div);
+          table.draw(data, opt_options || {sortColumn: 0, allowHtml: true, alternatingRowStyle: true});
+        } else {
+          div.innerHTML = "No grades available yet.";
+        }
+      }
+      
+      function callback() {
+        document.getElementById('title').innerHTML = "6.042 Grade Report for <i style=\"color: #663\">" + name + "</span>";
+        document.getElementById('timestamp').innerHTML = timestamp || "";
+        
+        drawTable(PS_grades, document.getElementById('psets_div'));
+        drawTable(F_grades, document.getElementById('f_div'));
+        drawTable(CP_grades, document.getElementById('cp_div'));
+        drawTable(MQ_grades, document.getElementById('mq_div'));
+        drawTable(RC_grades, document.getElementById('read_div'));
+        drawTable(T_grades, document.getElementById('tp_div'));
+        drawTable(total_grades, document.getElementById('total_div'));
+        /*
+        drawTable(PS_grades, document.getElementById('psets_div'));
+        drawTable(F_grades, document.getElementById('f_div'));
+        drawTable(R_grades, document.getElementById('cp_div'));
+        drawTable(Q_grades, document.getElementById('mq_div'));
+        drawTable(total_grades, document.getElementById('total_div'));
+        */
+        var quadtile_end = Math.min(total_grades_quadtile.num, total_grades_quadtile.start + total_grades_quadtile.quadrantSize - 1);
+        var q = (total_grades_quadtile.start - 1) / total_grades_quadtile.quadrantSize + 1;
+        document.getElementById('rank_div').innerHTML = 'Your current rank is: <em>' + addth(q) + ' quartile (' + addth(total_grades_quadtile.start) + ' - ' + addth(quadtile_end) + ')</em> out of ' + total_grades_quadtile.num + ' students.';
+      }
+      
+      function addth(x) {
+        switch (x) {
+          case 1:
+            return x + 'st';
+          case 2:
+            return x + 'nd';
+          case 3:
+            return x + 'rd';
+          default:
+            return x + 'th';
+        }
+      }
+      
+    </script>
+    <style>
+      h1 {
+        font-size: 20px;
+/*        border-left: 6px #993333 solid;*/
+        background: #CCCCEE;
+        padding: 10px;
+        color: #333333;
+        padding-left: 16px;
+      }
+      h2 {
+        font-size: 16px;
+/*        border-left: 6px #AA6666 solid;*/
+        background: #DDDDFF;
+        padding: 4px;
+        margin: 0;
+        margin-bottom: 10px;
+        color: #333333;
+        padding-left: 16px;
+      }
+      .grade_table_container {
+        width: 400px;
+        border: 1px lightgrey solid;
+        padding: 10px;
+        margin: 10px;
+      }
+      .total_container {
+        width: 800px;
+      }
+      .total_container h2 {
+/*        border-left: 6px #5566FF solid;*/
+        background: #CCCCFF;
+      }
+      .grayed h2 {
+        background: #CCCCCC;
+      }
+      #timestamp {
+        color: gray;
+        font-style: italic;
+        text-align: right;
+      }
+      em {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1 id="title">6.042 Grade Report</h1>
+    
+    <div style="float: left">
+        <div class="grade_table_container">
+          <h2>Problem Sets</h2>
+          <div id='psets_div'></div>
+          <p style="font-size: 14px; font-style: italic;">
+            Note: The psets' adjusted scores reflect the psets scores after being adjusted by its corresponding MQ's score. 
+            The adjusted scores will be further increased according to final exam's performance.
+          </p>
+        </div>
+        <div class="grade_table_container">
+          <h2>Mini Quizzes</h2>
+          <div id='mq_div'></div>
+        </div>
+        <div class="grade_table_container">
+          <h2>Reading Assignments</h2>
+          <div id='read_div'></div>
+        </div>
+        <div class="grade_table_container">
+          <h2>Tutor Problems</h2>
+          <div id='tp_div'></div>
+        </div>    
+        <div class="grade_table_container">
+          <h2>Final Exam</h2>
+          <div id='f_div'></div>
+        </div>
+    </div>
+    <div style="float: left">
+      <div class="grade_table_container">
+        <h2>Class Participation</h2>
+        <div id='cp_div'></div>
+      </div>
+    </div>
+    
+    <div style="clear:both"></div>
+    
+    <div class="grade_table_container total_container">
+      <h2>Totals</h2>
+      <div id='total_div'></div>
+      <p style="font-size: 14px; font-style: italic;">
+        Note: The totals only reflect grades that have been completely entered for the class.
+        A grade with <span style="background: #DDD; font-weight: bold;">gray</span> background signifies that the grade has not been completely entered yet.
+      </p>
+      <p style="font-size: 14px; font-style: italic;">
+        Note: A grade with <span style="color: #900; font-weight: bold;">red</span> font signifies that the grade has been dropped.
+      </p>
+    </div>
+    
+    <div class="grade_table_container total_container">
+      <h2>Grade Quartile</h2>
+      <div id='rank_div'></div>
+    </div>
+    
+    <div style="clear:both"></div>
+    
+    <div id="timestamp"></div>
+    
+    <div style="margin-top: 20px; padding: 10px; background: lightgrey; text-align: center; border-top: solid 1px #993333">
+      Please contact your TA if there is any problem with the grade report.
+    </div>
+    
+  </body>
+</html>

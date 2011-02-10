@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>6.042 Grade Report</title>
+    <script type='text/javascript' src='http://www.google.com/jsapi'></script>
+    <script type='text/javascript'>
+      google.load('visualization', '1', {packages:['table', 'columnchart']});
+      google.setOnLoadCallback(callback);
+      
+      /** data goes here **/
+      var grades = {};var titles = {};
+      
+#CONTENT#
+
+      function drawChart(key, div, w, h) {
+         var data = new google.visualization.DataTable(grades[key], 0.6)
+         var chart = new google.visualization.ColumnChart(div);
+         chart.draw(data, {width: w, height: h, is3D: false, title: titles[key], legend: 'none'})
+      }
+      function callback() {
+        var titles_sorted = [];
+        var total_title = null;
+        for (var key in titles) {
+          if (key.indexOf('TOTAL') >= 0) {
+            total_title = key;
+          } else {
+            titles_sorted.push(key);
+          }
+        }
+        titles_sorted.sort();
+        if (total_title) {
+          titles_sorted.unshift(total_title);
+        }
+        for (var i = 0; i < titles_sorted.length; i++) {
+          var key = titles_sorted[i];
+          var div = document.createElement('div');
+          div.className = 'grade_table_container';
+          if (key.indexOf('TOTAL') >= 0) {
+            div.id = 'total_container';
+          }
+          var title = document.createElement('h2');
+          title.innerHTML = key;
+          div.appendChild(title);
+          var chartDiv = document.createElement('div');
+          div.appendChild(chartDiv);
+          document.getElementById('container').appendChild(div);
+          drawChart(key, chartDiv, key.indexOf('TOTAL') >= 0 ? 800 : 400, 300);
+          if (key.indexOf('TOTAL') >= 0) {
+            var noteDiv = document.createElement('div');
+            noteDiv.innerHTML = '<p style="font-size: 14px; font-style: italic;">' +
+                                 'Note: Students who missed the quiz will be marked with a <b>0.0</b> grade.' +
+                                 '</p>';
+            div.appendChild(noteDiv);
+          }
+        }
+        document.getElementById('timestamp').innerHTML = timestamp || "";
+      }
+      
+    </script>
+    <style>
+      h1 {
+        font-size: 20px;
+/*        border-left: 6px #993333 solid;*/
+        background: #CCCCEE;
+        padding: 10px;
+        color: #333333;
+        padding-left: 16px;
+      }
+      h2 {
+        font-size: 16px;
+/*        border-left: 6px #AA6666 solid;*/
+        background: #DDDDFF;
+        padding: 4px;
+        margin: 0;
+        margin-bottom: 10px;
+        color: #333333;
+        padding-left: 16px;
+      }
+      .grade_table_container {
+        width: 400px;
+        border: 1px lightgrey solid;
+        padding: 10px;
+        margin: 10px;
+      }
+      #total_container {
+        width: 800px;
+      }
+      #total_container h2 {
+/*        border-left: 6px #5566FF solid;*/
+        background: #CCCCFF;
+      }
+      #timestamp {
+        color: gray;
+        font-style: italic;
+        text-align: right;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1 id="title">6.042 Class Grade Statistics</h1>
+    
+    <div style="float: left" id="container">
+    </div>
+    
+    <div style="clear:both"></div>
+    
+    <div id="timestamp"></div>
+    
+  </body>
+</html>
