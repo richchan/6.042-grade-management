@@ -175,11 +175,11 @@ public class GDataDownloader {
             //          http://code.google.com/p/gdata-issues/issues/detail?id=1816&sort=-id&colspec=API%20ID%20Type%20Status%20Priority%20Stars%20Summary
             try {
                 downloadFile(exportUrl + "&gid=" + j, filepath + i + ".csv");
+                if (!downloadedFiles.contains(filepath + i + ".csv")) {
+                    downloadedFiles.add(filepath + i + ".csv");
+                }
             } catch(ServiceException e) { // google's bug...
                 i--;
-            }
-            if (!downloadedFiles.contains(filepath + i + ".csv")) {
-                downloadedFiles.add(filepath + i + ".csv");
             }
         }
     }
